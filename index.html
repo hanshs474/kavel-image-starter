@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Image Generator</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #0d0f14; color: #e8eaf0; display: grid; place-items: start center; min-height: 100vh; }
+  main { width: min(680px, 92vw); padding: 48px 0; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  p.sub { color: #9aa3b2; margin: 0 0 24px; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 96px; padding: 12px; border-radius: 10px; border: 1px solid #2a3040; background: #151925; color: inherit; font: inherit; resize: vertical; }
+  .row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .ratio button, button.go { border: 1px solid #2a3040; background: #151925; color: inherit; border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; }
+  .ratio button[aria-pressed="true"] { border-color: #7c9cff; color: #fff; }
+  button.go { margin-left: auto; background: #4f6bff; border-color: #4f6bff; color: #fff; font-weight: 600; }
+  button.go:disabled { opacity: .6; cursor: wait; }
+  #out { margin-top: 24px; }
+  #out img { width: 100%; border-radius: 12px; display: block; }
+  #msg { color: #9aa3b2; margin-top: 16px; min-height: 1.4em; }
+  footer { margin-top: 40px; color: #6b7385; font-size: 14px; }
+  footer a { color: #9aa3b2; }
+</style>
+</head>
+<body>
+<main>
+  <h1>AI Image Generator</h1>
+  <p class="sub">Describe a picture and get it back in about a minute.</p>
+  <textarea id="prompt">a paper-cut layered mountain range at dusk, warm rim light</textarea>
+  <div class="row">
+    <div class="ratio" role="group" aria-label="Aspect ratio">
+      <button type="button" data-r="1:1" aria-pressed="true">1:1</button>
+      <button type="button" data-r="16:9" aria-pressed="false">16:9</button>
+      <button type="button" data-r="9:16" aria-pressed="false">9:16</button>
+    </div>
+    <button class="go" id="go">Generate</button>
+  </div>
+  <div id="msg"></div>
+  <div id="out"></div>
+  <footer>Images are made with the <a href="https://www.kavel.ai/?utm_source=railway-template">Kavel</a> API.</footer>
+</main>
+<script>
+  let ratio = '1:1';
+  document.querySelectorAll('.ratio button').forEach((b) => b.onclick = () => {
+    ratio = b.dataset.r;
+    document.querySelectorAll('.ratio button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  });
+  const msg = document.getElementById('msg'), out = document.getElementById('out'), go = document.getElementById('go');
+  go.onclick = async () => {
+    go.disabled = true; out.innerHTML = ''; msg.textContent = 'Queued…';
+    try {
+      const s = await (await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ prompt: document.getElementById('prompt').value, aspectRatio: ratio }) })).json();
+      if (s.error) throw new Error(s.error);
+      const t0 = Date.now();
+      for (;;) {
+        await new Promise((r) => setTimeout(r, 4000));
+        msg.textContent = `Rendering… ${Math.round((Date.now() - t0) / 1000)}s`;
+        const st = await (await fetch('/api/status?id=' + encodeURIComponent(s.taskId))).json();
+        if (st.error) throw new Error(st.error);
+        if (st.done) { out.innerHTML = `<a href="${st.url}" target="_blank" rel="noopener"><img src="${st.url}" alt=""></a>`; msg.textContent = ''; break; }
+        if (Date.now() - t0 > 6 * 60 * 1000) throw new Error('Still rendering after six minutes. Try again.');
+      }
+    } catch (e) { msg.textContent = e.message; }
+    go.disabled = false;
+  };
+</script>
+</body>
+</html>

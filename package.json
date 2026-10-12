@@ -1,0 +1,10 @@
+{
+  "name": "kavel-image-starter",
+  "version": "1.0.0",
+  "description": "One-page AI image generator on the Kavel API. Zero dependencies.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
