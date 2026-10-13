@@ -5,6 +5,14 @@ finished picture. One file of server code, no dependencies, Node 18+.
 
 Images come from the [Kavel](https://www.kavel.ai/?utm_source=github&utm_medium=starter) HTTP API.
 
+## Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhanshs474%2Fkavel-image-starter)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/ai-image-generator-kavel-api)
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/42R2NN)
+
+Live demo: [kavel-image-starter.vercel.app](https://kavel-image-starter.vercel.app)
+
 ## Run it
 
 ```bash
@@ -24,6 +32,7 @@ Or run the prebuilt image: `docker run -p 3000:3000 san8888/kavel-image-starter`
 
 ## How it works
 
+- On Vercel the same two routes are serverless functions in `api/`; elsewhere `server.js` serves them.
 - `POST /api/generate` submits the prompt and returns a task id.
 - `GET /api/status?id=` polls it. A free job waits in a queue and only starts when it is polled,
   so the page keeps polling until the image is ready (usually under a minute).

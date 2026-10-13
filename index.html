@@ -42,6 +42,9 @@
 </main>
 <script>
   let ratio = '1:1';
+  const cid = localStorage.getItem('cid') || (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+  localStorage.setItem('cid', cid);
+  const H = { 'x-client-id': cid };
   document.querySelectorAll('.ratio button').forEach((b) => b.onclick = () => {
     ratio = b.dataset.r;
     document.querySelectorAll('.ratio button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
@@ -50,14 +53,14 @@
   go.onclick = async () => {
     go.disabled = true; out.innerHTML = ''; msg.textContent = 'Queued…';
     try {
-      const s = await (await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' },
+      const s = await (await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json', ...H },
         body: JSON.stringify({ prompt: document.getElementById('prompt').value, aspectRatio: ratio }) })).json();
       if (s.error) throw new Error(s.error);
       const t0 = Date.now();
       for (;;) {
         await new Promise((r) => setTimeout(r, 4000));
         msg.textContent = `Rendering… ${Math.round((Date.now() - t0) / 1000)}s`;
-        const st = await (await fetch('/api/status?id=' + encodeURIComponent(s.taskId))).json();
+        const st = await (await fetch('/api/status?id=' + encodeURIComponent(s.taskId), { headers: H })).json();
         if (st.error) throw new Error(st.error);
         if (st.done) { out.innerHTML = `<a href="${st.url}" target="_blank" rel="noopener"><img src="${st.url}" alt=""></a>`; msg.textContent = ''; break; }
         if (Date.now() - t0 > 6 * 60 * 1000) throw new Error('Still rendering after six minutes. Try again.');
