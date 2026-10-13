@@ -1,0 +1,8 @@
+services:
+  app:
+    image: san8888/kavel-image-starter:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - KAVEL_API_KEY=${KAVEL_API_KEY:-}
+    restart: unless-stopped

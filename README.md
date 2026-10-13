@@ -20,6 +20,8 @@ It works with nothing configured: without a key it runs on Kavel's free anonymou
 | `KAVEL_MODEL` | Model to run with a key. Default `kavel-image-v1`. The models your plan includes are listed on the [pricing page](https://www.kavel.ai/pricing?utm_source=github&utm_medium=starter). |
 | `PORT` | Port to listen on. Default `3000`. |
 
+Or run the prebuilt image: `docker run -p 3000:3000 san8888/kavel-image-starter` (amd64 and arm64).
+
 ## How it works
 
 - `POST /api/generate` submits the prompt and returns a task id.
@@ -30,7 +32,8 @@ It works with nothing configured: without a key it runs on Kavel's free anonymou
 
 API reference: [kavel.readthedocs.io](https://kavel.readthedocs.io/). Want photo edits instead of
 text-to-image? The [Kavel image studio](https://www.kavel.ai/image?utm_source=github&utm_medium=starter)
-has the edit tools (hairstyle, outfit, old photo restoration and more).
+has the edit tools (hairstyle, outfit, old photo restoration and more), and for people shots that need
+the whole figure in frame there is a [full body AI generator](https://www.kavel.ai/image/ai-full-body-generator?utm_source=github&utm_medium=starter).
 
 ## License
 
